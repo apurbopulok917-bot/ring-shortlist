@@ -53,9 +53,12 @@
   .rule-gold { height:2px; background:var(--gold); width:3.2rem; margin:0 0 1.4rem; }
   .lede { font-size:1.05rem; color:var(--graphite); max-width:64ch; margin:0 0 1rem; }
 
-  .strip { display:grid; grid-template-columns:repeat(auto-fit,minmax(10rem,1fr)); gap:1px;
+  /* flex, not grid: with an item count that does not fill the last row a grid
+     leaves an empty track showing the container colour as a stray filled cell.
+     Flex items grow to close the row instead. */
+  .strip { display:flex; flex-wrap:wrap; gap:1px;
            background:var(--rule); border:1px solid var(--rule); margin:1.8rem 0 0; }
-  .strip div { background:var(--surface); padding:.75rem .9rem; }
+  .strip div { flex:1 1 10rem; background:var(--surface); padding:.75rem .9rem; }
   .strip dt { font-family:var(--sans); font-size:.6rem; font-weight:600; letter-spacing:.14em;
               text-transform:uppercase; color:var(--faint); margin-bottom:.2rem; }
   .strip dd { margin:0; font-family:var(--mono); font-size:.86rem; font-variant-numeric:tabular-nums; }
@@ -121,7 +124,6 @@
          text-transform:uppercase; padding:.08rem .32rem; border:1px solid currentColor; border-radius:2px; }
   .tag.pick { color:var(--gold); }
   .tag.warn { color:var(--warn); }
-  .tag.trend { color:var(--stop); }
   .empty { padding:2rem .9rem; color:var(--faint); font-family:var(--sans); font-size:.9rem; }
 
   footer { margin-top:2.6rem; border-top:1px solid var(--rule); padding-top:1rem;
@@ -129,8 +131,8 @@
   footer p { max-width:70ch; }
   /* the sort chips only exist in card mode */
   .fgroup-sort { display:none; }
-  .fgroup-sort .chip[data-dir="asc"]::after { content:" ↑"; color:var(--gold); }
-  .fgroup-sort .chip[data-dir="desc"]::after { content:" ↓"; color:var(--gold); }
+  .fgroup-sort .chip[data-dir="asc"] .chipglyph::after { content:" ↑"; color:var(--gold); }
+  .fgroup-sort .chip[data-dir="desc"] .chipglyph::after { content:" ↓"; color:var(--gold); }
 
   /* ---------- under 700px: the table becomes a card list ---------- */
   @media (max-width:700px) {
@@ -266,8 +268,8 @@
   </div>
   <div class="fgroup fgroup-sort" role="group" aria-label="Sort by price">
     <span class="flabel">Sort</span>
-    <button type="button" class="chip" data-sortkey="from" aria-pressed="false">From €</button>
-    <button type="button" class="chip" data-sortkey="onect" aria-pressed="false">@ 1.00 ct</button>
+    <button type="button" class="chip" data-sortkey="from" aria-pressed="false">From €<span class="chipglyph" aria-hidden="true"></span></button>
+    <button type="button" class="chip" data-sortkey="onect" aria-pressed="false">@ 1.00 ct<span class="chipglyph" aria-hidden="true"></span></button>
   </div>
   <p class="count" id="count" role="status" aria-live="polite">—</p>
 </div>
@@ -622,6 +624,12 @@
       var on = b.dataset.sortkey === key;
       b.setAttribute('aria-pressed', String(on));
       b.dataset.dir = on ? dir : '';
+      // the arrow is generated content on an aria-hidden span, so it stays out of
+      // the accessible name -- but it was the chips' only direction signal and
+      // they have no aria-sort to fall back on, so state it here instead.
+      if (on) b.setAttribute('aria-label', b.textContent.trim() + ', ' +
+                             (dir === 'asc' ? 'ascending' : 'descending'));
+      else b.removeAttribute('aria-label');
     });
   }
 
