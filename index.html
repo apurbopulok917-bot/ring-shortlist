@@ -53,13 +53,6 @@
   .rule-gold { height:2px; background:var(--gold); width:3.2rem; margin:0 0 1.4rem; }
   .lede { font-size:1.05rem; color:var(--graphite); max-width:64ch; margin:0 0 1rem; }
 
-  .strip { display:grid; grid-template-columns:repeat(auto-fit,minmax(10rem,1fr)); gap:1px;
-           background:var(--rule); border:1px solid var(--rule); margin:1.8rem 0 0; }
-  .strip div { background:var(--surface); padding:.75rem .9rem; }
-  .strip dt { font-family:var(--sans); font-size:.6rem; font-weight:600; letter-spacing:.14em;
-              text-transform:uppercase; color:var(--faint); margin-bottom:.2rem; }
-  .strip dd { margin:0; font-family:var(--mono); font-size:.86rem; font-variant-numeric:tabular-nums; }
-
   .rules { display:grid; grid-template-columns:repeat(auto-fit,minmax(16rem,1fr)); gap:1rem; margin:2rem 0 0; }
   .rules div { border-left:2px solid var(--gold); padding:.1rem 0 .1rem .8rem; }
   .rules b { display:block; font-family:var(--sans); font-size:.68rem; font-weight:700;
@@ -124,6 +117,54 @@
   footer { margin-top:2.6rem; border-top:1px solid var(--rule); padding-top:1rem;
            font-family:var(--sans); font-size:.76rem; color:var(--faint); }
   footer p { max-width:70ch; }
+  /* the sort chips only exist in card mode */
+  .fgroup-sort { display:none; }
+  .fgroup-sort .chip[data-dir="asc"]::after { content:" ↑"; color:var(--gold); }
+  .fgroup-sort .chip[data-dir="desc"]::after { content:" ↓"; color:var(--gold); }
+
+  /* ---------- under 700px: the table becomes a card list ---------- */
+  @media (max-width:700px) {
+    .flabel { width:100%; flex:0 0 100%; margin-bottom:.15rem; }
+    .fgroup { margin-bottom:.95rem; }
+    .fgroup-sort { display:flex; }
+
+    /* the page scrolls, not a box inside it */
+    .scroll { max-height:none; overflow:visible; border:0; background:none; }
+
+    #tbl, #tbl tbody { display:block; }
+    #tbl thead { display:none; }
+    #tbl tr { display:block; padding:.9rem 1rem 1rem; margin:0 0 .7rem;
+              border:1px solid var(--rule); background:var(--surface); }
+    #tbl tbody tr:hover { background:var(--surface); }
+    #tbl td { display:block; padding:0; border-top:0; text-align:left; white-space:normal; }
+
+    /* model name, then seller */
+    #tbl td:nth-child(1) .model a { font-size:1.02rem; }
+    #tbl td:nth-child(2) { font-size:.78rem; margin:.15rem 0 .8rem; }
+    #tbl td:nth-child(2) span { display:inline; }
+    #tbl td:nth-child(2) span::before { content:" · "; }
+
+    /* the two prices, side by side and led by their label */
+    #tbl td:nth-child(8), #tbl td:nth-child(9) {
+      display:inline-block; width:49%; padding:.5rem 0; font-size:1rem;
+      border-top:1px solid var(--rule-soft); vertical-align:top; }
+
+    /* the five spec cells, label left / value right */
+    #tbl td:nth-child(n+3):nth-child(-n+7) {
+      display:flex; justify-content:space-between; align-items:baseline;
+      gap:1rem; padding:.24rem 0; font-size:.82rem; }
+
+    #tbl td[data-label]::before {
+      content:attr(data-label); font-family:var(--sans); font-size:.6rem; font-weight:700;
+      letter-spacing:.12em; text-transform:uppercase; color:var(--faint); flex:0 0 auto; }
+    #tbl td:nth-child(8)::before, #tbl td:nth-child(9)::before { display:block; margin-bottom:.1rem; }
+
+    /* the note closes the card */
+    #tbl td:nth-child(10) { margin-top:.65rem; padding-top:.65rem; font-size:.85rem;
+                            border-top:1px solid var(--rule-soft); }
+    .empty { border:1px solid var(--rule); background:var(--surface); }
+  }
+
   /* print: the capped scroll box clips the table in print media too, which
      silently dropped 26 of the 35 rows from PDF exports. */
   @media print {
@@ -156,17 +197,10 @@
 <div class="wrap">
 
 <header>
-  <p class="eyebrow">Engagement ring shortlist &middot; €500–1,500 &middot; delivered to Berlin</p>
+  <p class="eyebrow">Engagement ring shortlist &middot; delivered to Berlin</p>
   <h1>The Berlin Ring Shortlist</h1>
   <div class="rule-gold"></div>
-  <p class="lede">Every ring below is a real, orderable model from a seller inside the EU or, where flagged, from a German-facing configurator. Prices read from each seller&rsquo;s own page on 17 August 2026. Filter by stone and shape; sort by price; the model name links straight to the product.</p>
-
-  <dl class="strip">
-    <div><dt>Budget</dt><dd>€500 – €1,500</dd></div>
-    <div><dt>Ring size</dt><dd>US 5.5 = 16.1 mm ⌀</dd></div>
-    <div><dt>Order size</dt><dd>EU 51 (16.2 mm)</dd></div>
-    <div><dt>Models listed</dt><dd id="total">—</dd></div>
-  </dl>
+  <p class="lede">Every model here is real, orderable, and sold from inside the EU. Prices come from each seller&rsquo;s own page, read on 17 August 2026.</p>
 
   <div class="rules">
     <div>
@@ -210,6 +244,11 @@
     <button type="button" class="chip" data-f="verdict" data-v="classic" aria-pressed="false">Timeless only</button>
     <button type="button" class="chip" data-f="verdict" data-v="trend" aria-pressed="false">Trend-risk</button>
   </div>
+  <div class="fgroup fgroup-sort" role="group" aria-label="Sort by price">
+    <span class="flabel">Sort</span>
+    <button type="button" class="chip" data-sortkey="from" aria-pressed="false">From €</button>
+    <button type="button" class="chip" data-sortkey="onect" aria-pressed="false">@ 1.00 ct</button>
+  </div>
   <p class="count" id="count" role="status" aria-live="polite">—</p>
 </div>
 
@@ -236,92 +275,92 @@
       <tr data-stone="lab" data-shape="round" data-verdict="classic" data-from="1041" data-onect="1392">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://labgrownlove.de/en/products/brillant-verlobungsring-laborgezuchteter-diamant">Ida</a> <span class="tag pick">Pick</span></span></td>
         <td class="shop">Labgrownlove<span>Düsseldorf, DE</span></td>
-        <td>Round brilliant</td><td>Solitaire</td><td>Lab diamond</td><td>14K / 18K / Pt</td><td>0.5 – 8 ct</td>
-        <td class="num price">1,041</td><td class="num price hi">1,392</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">14K / 18K / Pt</td><td data-label="Carat">0.5 – 8 ct</td>
+        <td class="num price" data-label="from">1,041</td><td class="num price hi" data-label="@ 1.00 ct">1,392</td>
         <td class="note">E / VS1 / excellent cut. The straight classic build. 30-day free refund.</td>
       </tr>
       <tr data-stone="lab" data-shape="oval" data-verdict="classic" data-from="1041" data-onect="1392">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-oval"/></svg><a href="https://labgrownlove.de/en/products/vera-2-ct-oval-lab-grown-diamond-solitaire-engagement-ring">Mira</a> <span class="tag pick">Pick</span></span></td>
         <td class="shop">Labgrownlove<span>Düsseldorf, DE</span></td>
-        <td>Oval</td><td>Solitaire</td><td>Lab diamond</td><td>14K / 18K / Pt</td><td>0.5 – 8 ct</td>
-        <td class="num price">1,041</td><td class="num price hi">1,392</td>
+        <td data-label="Shape">Oval</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">14K / 18K / Pt</td><td data-label="Carat">0.5 – 8 ct</td>
+        <td class="num price" data-label="from">1,041</td><td class="num price hi" data-label="@ 1.00 ct">1,392</td>
         <td class="note">0.7 ct sits at €1,158 — the sweet spot if you want change from €1,200.</td>
       </tr>
       <tr data-stone="lab" data-shape="oval" data-verdict="classic" data-from="1041" data-onect="1392">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-oval"/></svg><a href="https://labgrownlove.de/en/products/stacy-oval-solitar-verlobungsring-laborgezuchteter-diamant">Stacy</a></span></td>
         <td class="shop">Labgrownlove<span>Düsseldorf, DE</span></td>
-        <td>Oval</td><td>Tulip solitaire</td><td>Lab diamond</td><td>14K / 18K / Pt</td><td>0.5 – 10 ct</td>
-        <td class="num price">1,041</td><td class="num price hi">1,392</td>
+        <td data-label="Shape">Oval</td><td data-label="Setting">Tulip solitaire</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">14K / 18K / Pt</td><td data-label="Carat">0.5 – 10 ct</td>
+        <td class="num price" data-label="from">1,041</td><td class="num price hi" data-label="@ 1.00 ct">1,392</td>
         <td class="note">Tulip basket — a little more detail than a plain solitaire, still classic.</td>
       </tr>
       <tr data-stone="lab" data-shape="emerald" data-verdict="classic" data-from="1041" data-onect="1509">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-emerald"/></svg><a href="https://labgrownlove.de/en/products/celina-emerald-solitar-verlobungsring-laborgezuchteter-diamant">Celina</a></span></td>
         <td class="shop">Labgrownlove<span>Düsseldorf, DE</span></td>
-        <td>Emerald</td><td>Solitaire</td><td>Lab diamond</td><td>14K / Pt</td><td>0.5 – 8 ct</td>
-        <td class="num price">1,041</td><td class="num price">1,509</td>
+        <td data-label="Shape">Emerald</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">14K / Pt</td><td data-label="Carat">0.5 – 8 ct</td>
+        <td class="num price" data-label="from">1,041</td><td class="num price" data-label="@ 1.00 ct">1,509</td>
         <td class="note">Step cut — architectural rather than sparkly. 1 ct just tips over budget.</td>
       </tr>
       <tr data-stone="lab" data-shape="pear" data-verdict="trend" data-from="1041" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-pear"/></svg><a href="https://labgrownlove.de/en/products/kate-tropfen-solitar-verlobungsring-laborgezuchteter-diamant">Kate</a></span></td>
         <td class="shop">Labgrownlove<span>Düsseldorf, DE</span></td>
-        <td>Pear</td><td>Solitaire</td><td>Lab diamond</td><td>14K / 18K / Pt</td><td>0.5 – 8 ct</td>
-        <td class="num price">1,041</td><td class="num price">—</td>
+        <td data-label="Shape">Pear</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">14K / 18K / Pt</td><td data-label="Carat">0.5 – 8 ct</td>
+        <td class="num price" data-label="from">1,041</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Pretty, but pointed shapes chip and pear is on 2026 trend lists.</td>
       </tr>
       <tr data-stone="lab" data-shape="radiant" data-verdict="classic" data-from="923" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-radiant"/></svg><a href="https://labgrownlove.de/en/products/veronica-radiant-solitar-diamantring">Veronica</a></span></td>
         <td class="shop">Labgrownlove<span>Düsseldorf, DE</span></td>
-        <td>Radiant</td><td>Solitaire</td><td>Lab diamond</td><td>14K / Pt</td><td>0.3 – 2 ct</td>
-        <td class="num price">923</td><td class="num price">—</td>
+        <td data-label="Shape">Radiant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">14K / Pt</td><td data-label="Carat">0.3 – 2 ct</td>
+        <td class="num price" data-label="from">923</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Graded <strong>D / VVS1</strong>, a step above the rest of the range. Cheapest solitaire here.</td>
       </tr>
       <tr data-stone="lab" data-shape="radiant" data-verdict="classic" data-from="1110" data-onect="1578">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-radiant"/></svg><a href="https://labgrownlove.de/en/products/grace-radiant-solitar-cathedral-verlobungsring">Grace</a></span></td>
         <td class="shop">Labgrownlove<span>Düsseldorf, DE</span></td>
-        <td>Radiant</td><td>Cathedral solitaire</td><td>Lab diamond</td><td>14K / Pt</td><td>0.5 – 5 ct</td>
-        <td class="num price">1,110</td><td class="num price">1,578</td>
+        <td data-label="Shape">Radiant</td><td data-label="Setting">Cathedral solitaire</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">14K / Pt</td><td data-label="Carat">0.5 – 5 ct</td>
+        <td class="num price" data-label="from">1,110</td><td class="num price" data-label="@ 1.00 ct">1,578</td>
         <td class="note">Cathedral arches — timeless setting. 0.7 ct at €1,227 is the in-budget pick.</td>
       </tr>
       <tr data-stone="lab" data-shape="radiant" data-verdict="classic" data-from="1041" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-radiant"/></svg><a href="https://labgrownlove.de/en/products/jenny-radiant-solitar-verlobungsring-laborgezuchteter-diamant">Briel</a></span></td>
         <td class="shop">Labgrownlove<span>Düsseldorf, DE</span></td>
-        <td>Radiant</td><td>Solitaire</td><td>Lab diamond</td><td>14K / Pt</td><td>0.5 – 8 ct</td>
-        <td class="num price">1,041</td><td class="num price">—</td>
+        <td data-label="Shape">Radiant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">14K / Pt</td><td data-label="Carat">0.5 – 8 ct</td>
+        <td class="num price" data-label="from">1,041</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Elongated radiant reads larger per carat than a square one.</td>
       </tr>
       <tr data-stone="lab" data-shape="oval" data-verdict="trend" data-from="1049" data-onect="1379">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-oval"/></svg><a href="https://labgrownlove.de/en/products/candy-oval-solitar-hidden-halo-laborgezuchteter-diamant">Candy</a></span></td>
         <td class="shop">Labgrownlove<span>Düsseldorf, DE</span></td>
-        <td>Oval</td><td>Hidden halo</td><td>Lab diamond</td><td>10K / 14K / 18K / Pt</td><td>0.7 – 6 ct</td>
-        <td class="num price">1,049</td><td class="num price hi">1,379</td>
+        <td data-label="Shape">Oval</td><td data-label="Setting">Hidden halo</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">10K / 14K / 18K / Pt</td><td data-label="Carat">0.7 – 6 ct</td>
+        <td class="num price" data-label="from">1,049</td><td class="num price hi" data-label="@ 1.00 ct">1,379</td>
         <td class="note">Cheapest route to 1 ct here. Hidden halo is a 2026 trend and adds diamonds you cannot see.</td>
       </tr>
       <tr data-stone="lab" data-shape="cushion" data-verdict="trend" data-from="1041" data-onect="1509">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-cushion"/></svg><a href="https://labgrownlove.de/en/products/victoria-cushion-solitar-verlobungsring-laborgezuchteter-diamant">Victoria</a></span></td>
         <td class="shop">Labgrownlove<span>Düsseldorf, DE</span></td>
-        <td>Elongated cushion</td><td>Hidden halo</td><td>Lab diamond</td><td>14K / Pt</td><td>0.5 – 8 ct</td>
-        <td class="num price">1,041</td><td class="num price">1,509</td>
+        <td data-label="Shape">Elongated cushion</td><td data-label="Setting">Hidden halo</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">14K / Pt</td><td data-label="Carat">0.5 – 8 ct</td>
+        <td class="num price" data-label="from">1,041</td><td class="num price" data-label="@ 1.00 ct">1,509</td>
         <td class="note">Cushion itself is timeless; the hidden halo is the dated part.</td>
       </tr>
       <tr data-stone="lab" data-shape="princess" data-verdict="trend" data-from="1041" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-princess"/></svg><a href="https://labgrownlove.de/en/products/princess-verlobungsring-laborgezuchteter-diamant">Elaine</a></span></td>
         <td class="shop">Labgrownlove<span>Düsseldorf, DE</span></td>
-        <td>Princess</td><td>Hidden halo</td><td>Lab diamond</td><td>14K / Pt</td><td>0.5 – 8 ct</td>
-        <td class="num price">1,041</td><td class="num price">—</td>
+        <td data-label="Shape">Princess</td><td data-label="Setting">Hidden halo</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">14K / Pt</td><td data-label="Carat">0.5 – 8 ct</td>
+        <td class="num price" data-label="from">1,041</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Princess corners are the most chip-prone of the square cuts.</td>
       </tr>
       <tr data-stone="lab" data-shape="oval" data-verdict="classic" data-from="1275" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-oval"/></svg><a href="https://labgrownlove.de/en/products/tiffany-pave-oval-verlobungsring-laborgezuchteter-diamant">Tiffany</a></span></td>
         <td class="shop">Labgrownlove<span>Düsseldorf, DE</span></td>
-        <td>Oval</td><td>Pavé band</td><td>Lab diamond</td><td>14K / Pt</td><td>0.5 – 8 ct</td>
-        <td class="num price">1,275</td><td class="num price">—</td>
+        <td data-label="Shape">Oval</td><td data-label="Setting">Pavé band</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">14K / Pt</td><td data-label="Carat">0.5 – 8 ct</td>
+        <td class="num price" data-label="from">1,275</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Fine pavé holds up over time, but complicates resizing and sheds melee.</td>
       </tr>
       <tr data-stone="lab" data-shape="oval" data-verdict="classic" data-from="1345" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-oval"/></svg><a href="https://labgrownlove.de/en/products/flores-oval-trilogy-verlobungsring-laborgezuchteter-diamant">Flores</a></span></td>
         <td class="shop">Labgrownlove<span>Düsseldorf, DE</span></td>
-        <td>Oval</td><td>Three-stone</td><td>Lab diamond</td><td>14K / Pt</td><td>0.5 – 5 ct</td>
-        <td class="num price">1,345</td><td class="num price">—</td>
+        <td data-label="Shape">Oval</td><td data-label="Setting">Three-stone</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">14K / Pt</td><td data-label="Carat">0.5 – 5 ct</td>
+        <td class="num price" data-label="from">1,345</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Three-stone is the other never-dated setting. Budget spreads across three stones.</td>
       </tr>
 
@@ -329,29 +368,29 @@
       <tr data-stone="lab" data-shape="round" data-verdict="classic" data-from="1287" data-onect="1287">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://www.trauringe-schillinger.de/verlobungsring-gold-lab-grown-ru-1585-36">RU 1585-36</a> <span class="tag pick">Pick</span></span></td>
         <td class="shop">Trauringe Schillinger<span>Cologne, DE</span></td>
-        <td>Round brilliant</td><td>Solitaire</td><td>Lab diamond</td><td>585 white gold</td><td>1.00 ct</td>
-        <td class="num price">1,287</td><td class="num price hi">1,287</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">585 white gold</td><td data-label="Carat">1.00 ct</td>
+        <td class="num price" data-label="from">1,287</td><td class="num price hi" data-label="@ 1.00 ct">1,287</td>
         <td class="note">A full carat, fixed price, VAT and shipping included. The cleanest 1 ct deal found.</td>
       </tr>
       <tr data-stone="lab" data-shape="round" data-verdict="classic" data-from="1287" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://www.trauringe-schillinger.de/solitarring-gelbgold-verlobungsring-lab-grown-diamant-0-83-ct-ru-47839">RU 47839</a></span></td>
         <td class="shop">Trauringe Schillinger<span>Cologne, DE</span></td>
-        <td>Round brilliant</td><td>Solitaire</td><td>Lab diamond</td><td>750 yellow gold</td><td>0.83 ct</td>
-        <td class="num price">1,287</td><td class="num price">—</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">750 yellow gold</td><td data-label="Carat">0.83 ct</td>
+        <td class="num price" data-label="from">1,287</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">18K yellow gold — no rhodium re-plating, ever. Confirm exact price at checkout.</td>
       </tr>
       <tr data-stone="natural" data-shape="round" data-verdict="classic" data-from="1456" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://www.trauringe-schillinger.de/verlobungsring-weissgold-rotgold-oder-gelbgold-0-50ct-0-70-ct-diamantring-gold-41655">RU 41655</a></span></td>
         <td class="shop">Trauringe Schillinger<span>Cologne, DE</span></td>
-        <td>Round brilliant</td><td>Solitaire</td><td>Natural diamond</td><td>585 W/R/Y gold</td><td>0.50 – 0.70 ct</td>
-        <td class="num price">1,456</td><td class="num price">—</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Natural diamond</td><td data-label="Metal">585 W/R/Y gold</td><td data-label="Carat">0.50 – 0.70 ct</td>
+        <td class="num price" data-label="from">1,456</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Largest natural stone in the list. Incl. 19% VAT, free shipping.</td>
       </tr>
       <tr data-stone="natural" data-shape="round" data-verdict="classic" data-from="1497" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://www.trauringe-schillinger.de/verlobungsringe-585-gold-0-50-0-70-ct-tw-si-gelbgold-rotgold-weissgold-41663">RU 41663</a></span></td>
         <td class="shop">Trauringe Schillinger<span>Cologne, DE</span></td>
-        <td>Round brilliant</td><td>Solitaire</td><td>Natural diamond</td><td>585 W/R/Y gold</td><td>0.50 – 0.70 ct</td>
-        <td class="num price">1,497</td><td class="num price">—</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Natural diamond</td><td data-label="Metal">585 W/R/Y gold</td><td data-label="Carat">0.50 – 0.70 ct</td>
+        <td class="num price" data-label="from">1,497</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Graded Tw/si — German nomenclature, roughly G–H colour, SI clarity.</td>
       </tr>
 
@@ -359,29 +398,29 @@
       <tr data-stone="natural" data-shape="round" data-verdict="classic" data-from="1199" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://www.verlobungsring.de/verlobungsring-maja-0-30-ct-aus-weissgold-diamant">Maja 0,30</a> <span class="tag pick">Pick</span></span></td>
         <td class="shop">verlobungsring.de<span>Munich, DE</span></td>
-        <td>Round brilliant</td><td>Solitaire</td><td>Natural diamond</td><td>585 white gold</td><td>0.30 ct</td>
-        <td class="num price">1,199</td><td class="num price">—</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Natural diamond</td><td data-label="Metal">585 white gold</td><td data-label="Carat">0.30 ct</td>
+        <td class="num price" data-label="from">1,199</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">4.3 mm — deliberately delicate. 60-day returns, free resizing, 7–10 working days.</td>
       </tr>
       <tr data-stone="natural" data-shape="round" data-verdict="classic" data-from="1299" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://www.verlobungsring.de/verlobungsring-melissa-0-30-ct-aus-weissgold-diamant">Melissa 0,30</a></span></td>
         <td class="shop">verlobungsring.de<span>Munich, DE</span></td>
-        <td>Round brilliant</td><td>Solitaire</td><td>Natural diamond</td><td>585 white gold</td><td>0.30 ct</td>
-        <td class="num price">1,299</td><td class="num price">—</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Natural diamond</td><td data-label="Metal">585 white gold</td><td data-label="Carat">0.30 ct</td>
+        <td class="num price" data-label="from">1,299</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Same stone as Maja in a different mount.</td>
       </tr>
       <tr data-stone="natural" data-shape="round" data-verdict="classic" data-from="1399" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://www.verlobungsring.de/verlobungsring-floris-0-43-ct-aus-weissgold-diamant">Floris 0,43</a></span></td>
         <td class="shop">verlobungsring.de<span>Munich, DE</span></td>
-        <td>Round brilliant</td><td>Solitaire</td><td>Natural diamond</td><td>585 white gold</td><td>0.43 ct</td>
-        <td class="num price">1,399</td><td class="num price">—</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Natural diamond</td><td data-label="Metal">585 white gold</td><td data-label="Carat">0.43 ct</td>
+        <td class="num price" data-label="from">1,399</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Best natural size-per-euro at this seller.</td>
       </tr>
       <tr data-stone="natural" data-shape="round" data-verdict="classic" data-from="1499" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://www.verlobungsring.de/verlobungsring-maja-0-50-ct-aus-weissgold-diamant">Maja 0,50</a></span></td>
         <td class="shop">verlobungsring.de<span>Munich, DE</span></td>
-        <td>Round brilliant</td><td>Solitaire</td><td>Natural diamond</td><td>585 white gold</td><td>0.50 ct</td>
-        <td class="num price">1,499</td><td class="num price">—</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Natural diamond</td><td data-label="Metal">585 white gold</td><td data-label="Carat">0.50 ct</td>
+        <td class="num price" data-label="from">1,499</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Half a carat, 5.0 mm — the ceiling of this budget in natural stone.</td>
       </tr>
 
@@ -389,22 +428,22 @@
       <tr data-stone="lab" data-shape="round" data-verdict="classic" data-from="1000" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://deardarling.berlin/en/collections/nachhaltige-verlobungsringe-lab-grown-diamanten">Harper</a></span></td>
         <td class="shop">Dear Darling<span><strong>Berlin</strong>, DE</span></td>
-        <td>Round brilliant</td><td>Solitaire</td><td>Lab diamond</td><td>585 / 750</td><td>on request</td>
-        <td class="num price">1,000</td><td class="num price">—</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">585 / 750</td><td data-label="Carat">on request</td>
+        <td class="num price" data-label="from">1,000</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">100% handmade in Germany, 4–6 weeks. GIA/IGI/HRD certificates. Their 1 ct models are €2,600.</td>
       </tr>
       <tr data-stone="lab" data-shape="round" data-verdict="classic" data-from="1000" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://deardarling.berlin/en/collections/nachhaltige-verlobungsringe-lab-grown-diamanten">Violet</a></span></td>
         <td class="shop">Dear Darling<span><strong>Berlin</strong>, DE</span></td>
-        <td>Round brilliant</td><td>Solitaire</td><td>Lab diamond</td><td>585 / 750</td><td>on request</td>
-        <td class="num price">1,000</td><td class="num price">—</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">585 / 750</td><td data-label="Carat">on request</td>
+        <td class="num price" data-label="from">1,000</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">The other €1,000 entry. Worth a Berlin studio visit before ordering.</td>
       </tr>
       <tr data-stone="lab" data-shape="oval" data-verdict="trend" data-from="1290" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-toi"/></svg><a href="https://deardarling.berlin/en/collections/nachhaltige-verlobungsringe-lab-grown-diamanten">Elly</a></span></td>
         <td class="shop">Dear Darling<span><strong>Berlin</strong>, DE</span></td>
-        <td>Two-stone</td><td>Toi et Moi</td><td>Lab diamond</td><td>585 / 750</td><td>petite</td>
-        <td class="num price">1,290</td><td class="num price">—</td>
+        <td data-label="Shape">Two-stone</td><td data-label="Setting">Toi et Moi</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">585 / 750</td><td data-label="Carat">petite</td>
+        <td class="num price" data-label="from">1,290</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Historic form, currently fashionable again — so it will read as &ldquo;2020s&rdquo; later.</td>
       </tr>
 
@@ -412,15 +451,15 @@
       <tr data-stone="lab" data-shape="oval" data-verdict="classic" data-from="1470" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-oval"/></svg><a href="https://velur.de/en/products/solitaer-elise-ring/34006/lab-diamant/">Élise</a></span></td>
         <td class="shop">Velur<span>Munich, DE</span></td>
-        <td>Oval</td><td>Solitaire</td><td>Lab diamond</td><td>10K / 14K / Pt</td><td>configurable</td>
-        <td class="num price">1,470</td><td class="num price">—</td>
+        <td data-label="Shape">Oval</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">10K / 14K / Pt</td><td data-label="Carat">configurable</td>
+        <td class="num price" data-label="from">1,470</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Designed with a person over WhatsApp, 3–4 weeks. <strong>180 days free resizing</strong>, lifetime warranty.</td>
       </tr>
       <tr data-stone="moissanite" data-shape="round" data-verdict="classic" data-from="780" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://velur.de/en/collections/verlobungsringe/moissanit/">Moissanite solitaire</a></span></td>
         <td class="shop">Velur<span>Munich, DE</span></td>
-        <td>Round / oval</td><td>Solitaire</td><td>Moissanite</td><td>10K / 14K gold</td><td>configurable</td>
-        <td class="num price">780</td><td class="num price">—</td>
+        <td data-label="Shape">Round / oval</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Moissanite</td><td data-label="Metal">10K / 14K gold</td><td data-label="Carat">configurable</td>
+        <td class="num price" data-label="from">780</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Not a diamond: 2.4× the rainbow fire, Mohs 9.25, GRA certificate. Buy for the look, not the saving.</td>
       </tr>
 
@@ -428,43 +467,43 @@
       <tr data-stone="natural" data-shape="round" data-verdict="classic" data-from="517" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://www.auronia.de/p/no3014-0-15-rd-pl-gelbgold-333">Modell N°3014</a> <span class="tag warn">333</span></span></td>
         <td class="shop">Auronia<span>Nordhorn, DE</span></td>
-        <td>Round brilliant</td><td>Solitaire</td><td>Natural diamond</td><td>333 → upgrade to 585/750</td><td>0.15 ct</td>
-        <td class="num price">517</td><td class="num price">—</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Natural diamond</td><td data-label="Metal">333 → upgrade to 585/750</td><td data-label="Carat">0.15 ct</td>
+        <td class="num price" data-label="from">517</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Cheapest entry anywhere here, but quoted in <strong>8-karat gold</strong>. Reconfigure the alloy before comparing.</td>
       </tr>
       <tr data-stone="natural" data-shape="round" data-verdict="classic" data-from="544" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://www.auronia.de/p/no3013-0-15-rd-pl-weissgold-333">Modell N°3013</a> <span class="tag warn">333</span></span></td>
         <td class="shop">Auronia<span>Nordhorn, DE</span></td>
-        <td>Round brilliant</td><td>Solitaire</td><td>Natural diamond</td><td>333 → upgrade to 585/750</td><td>0.15 ct</td>
-        <td class="num price">544</td><td class="num price">—</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Natural diamond</td><td data-label="Metal">333 → upgrade to 585/750</td><td data-label="Carat">0.15 ct</td>
+        <td class="num price" data-label="from">544</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Best 3D configurator in German retail. Free plain sample rings to check size first.</td>
       </tr>
       <tr data-stone="natural" data-shape="round" data-verdict="classic" data-from="631" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://www.auronia.de/p/no3021-0-30-rd-pl-gelbgold-333">Modell N°3021</a> <span class="tag warn">333</span></span></td>
         <td class="shop">Auronia<span>Nordhorn, DE</span></td>
-        <td>Round brilliant</td><td>Solitaire</td><td>Natural diamond</td><td>333 → upgrade to 585/750</td><td>0.30 ct</td>
-        <td class="num price">631</td><td class="num price">—</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Natural diamond</td><td data-label="Metal">333 → upgrade to 585/750</td><td data-label="Carat">0.30 ct</td>
+        <td class="num price" data-label="from">631</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">0.30 ct natural for €631 — but expect roughly +€250–400 once you move to 585 or 750.</td>
       </tr>
       <tr data-stone="natural" data-shape="round" data-verdict="classic" data-from="979" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-round"/></svg><a href="https://www.auronia.de/p/no3303-0-30-rd-pl-gelbgold-333">Modell N°3303</a> <span class="tag warn">333</span></span></td>
         <td class="shop">Auronia<span>Nordhorn, DE</span></td>
-        <td>Round brilliant</td><td>Three-stone</td><td>Natural diamond</td><td>333 → upgrade to 585/750</td><td>0.30 ct</td>
-        <td class="num price">979</td><td class="num price">—</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Three-stone</td><td data-label="Stone">Natural diamond</td><td data-label="Metal">333 → upgrade to 585/750</td><td data-label="Carat">0.30 ct</td>
+        <td class="num price" data-label="from">979</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Cheapest three-stone in the list.</td>
       </tr>
       <tr data-stone="natural" data-shape="oval" data-verdict="classic" data-from="1018" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-oval"/></svg><a href="https://www.auronia.de/p/no3305-0-30-ov-pl-gelbgold-333">Modell N°3305 Oval</a> <span class="tag warn">333</span></span></td>
         <td class="shop">Auronia<span>Nordhorn, DE</span></td>
-        <td>Oval</td><td>Three-stone</td><td>Natural diamond</td><td>333 → upgrade to 585/750</td><td>0.30 ct</td>
-        <td class="num price">1,018</td><td class="num price">—</td>
+        <td data-label="Shape">Oval</td><td data-label="Setting">Three-stone</td><td data-label="Stone">Natural diamond</td><td data-label="Metal">333 → upgrade to 585/750</td><td data-label="Carat">0.30 ct</td>
+        <td class="num price" data-label="from">1,018</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Oval centre in a three-stone mount — two timeless choices at once.</td>
       </tr>
       <tr data-stone="natural" data-shape="oval" data-verdict="classic" data-from="1235" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-oval"/></svg><a href="https://www.auronia.de/p/no3015-0-30-ov-bd-weissgold-333">Modell N°3015 Oval</a> <span class="tag warn">333</span></span></td>
         <td class="shop">Auronia<span>Nordhorn, DE</span></td>
-        <td>Oval</td><td>Pavé band</td><td>Natural diamond</td><td>333 → upgrade to 585/750</td><td>0.30 ct</td>
-        <td class="num price">1,235</td><td class="num price">—</td>
+        <td data-label="Shape">Oval</td><td data-label="Setting">Pavé band</td><td data-label="Stone">Natural diamond</td><td data-label="Metal">333 → upgrade to 585/750</td><td data-label="Carat">0.30 ct</td>
+        <td class="num price" data-label="from">1,235</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Configurable to 2.00 ct and to lab-grown if you prefer.</td>
       </tr>
 
@@ -472,22 +511,22 @@
       <tr data-stone="gem" data-shape="oval" data-verdict="classic" data-from="1300" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-oval"/></svg><a href="https://juwelenorogem.be/en/blue-sapphire-engagement-rings/">Blue sapphire solitaire</a></span></td>
         <td class="shop">Juwelen OroGem<span>Antwerp, BE</span></td>
-        <td>Oval / round</td><td>Solitaire</td><td>Natural sapphire</td><td>18K gold</td><td>varies</td>
-        <td class="num price">1,300</td><td class="num price">—</td>
+        <td data-label="Shape">Oval / round</td><td data-label="Setting">Solitaire</td><td data-label="Stone">Natural sapphire</td><td data-label="Metal">18K gold</td><td data-label="Carat">varies</td>
+        <td class="num price" data-label="from">1,300</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Royal or cornflower blue, certified, handmade in Antwerp, free EU shipping. Mohs 9 — fine for daily wear.</td>
       </tr>
       <tr data-stone="gem" data-shape="emerald" data-verdict="trend" data-from="1229" data-onect="">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-emerald"/></svg><a href="https://labgrownlove.de/en/products/diana-emerald-halo-verlobungsring-laborgezuchteter-diamant">Daffodil</a></span></td>
         <td class="shop">Labgrownlove<span>Düsseldorf, DE</span></td>
-        <td>Emerald</td><td>Halo</td><td>Emerald / ruby / sapphire</td><td>14K / Pt</td><td>0.5 – 7 ct</td>
-        <td class="num price">1,229</td><td class="num price">—</td>
+        <td data-label="Shape">Emerald</td><td data-label="Setting">Halo</td><td data-label="Stone">Emerald / ruby / sapphire</td><td data-label="Metal">14K / Pt</td><td data-label="Carat">0.5 – 7 ct</td>
+        <td class="num price" data-label="from">1,229</td><td class="num price" data-label="@ 1.00 ct">—</td>
         <td class="note">Pick your colour at checkout. Emerald is Mohs 7.5–8 and brittle — sapphire or ruby wears better.</td>
       </tr>
       <tr data-stone="lab" data-shape="round" data-verdict="classic" data-from="620" data-onect="620">
         <td><span class="model"><svg aria-hidden="true" focusable="false"><use href="#s-stone"/></svg><a href="https://novitadiamonds.de/en/">1.00 ct D VS1 — loose stone</a> <span class="tag pick">Pick</span></span></td>
         <td class="shop">Novita Diamonds<span>Frankfurt, DE</span></td>
-        <td>Round brilliant</td><td>Stone only</td><td>Lab diamond</td><td>mount extra (18K / Pt)</td><td>1.00 ct</td>
-        <td class="num price">620</td><td class="num price hi">620</td>
+        <td data-label="Shape">Round brilliant</td><td data-label="Setting">Stone only</td><td data-label="Stone">Lab diamond</td><td data-label="Metal">mount extra (18K / Pt)</td><td data-label="Carat">1.00 ct</td>
+        <td class="num price" data-label="from">620</td><td class="num price hi" data-label="@ 1.00 ct">620</td>
         <td class="note">300+ stones on site to compare in person, hand-picked by three gemmologists. Add a mount for the finished ring.</td>
       </tr>
 
@@ -510,7 +549,6 @@
   var state = { stone: 'all', shape: 'all', verdict: 'all' };
   var countEl = document.getElementById('count');
   var emptyEl = document.getElementById('empty');
-  document.getElementById('total').textContent = rows.length;
 
   function apply() {
     var shown = 0;
@@ -536,25 +574,45 @@
     });
   });
 
-  document.querySelectorAll('th.sortable').forEach(function (th) {
-    th.querySelector('.sortbtn').addEventListener('click', function () {
-      var key = th.dataset.sort;
-      var dir = th.getAttribute('aria-sort') === 'ascending' ? 'desc' : 'asc';
-      document.querySelectorAll('th.sortable').forEach(function (o) { o.setAttribute('aria-sort', 'none'); });
-      th.setAttribute('aria-sort', dir === 'asc' ? 'ascending' : 'descending');
-      var sorted = rows.slice().sort(function (a, b) {
-        var av = parseFloat(a.dataset[key]);
-        var bv = parseFloat(b.dataset[key]);
-        // rows with no price ("—") always sink to the bottom, but must compare
-        // equal to each other — returning 1 for both orderings is an invalid
-        // comparator and lets the engine shuffle them arbitrarily.
-        if (isNaN(av) && isNaN(bv)) return 0;
-        if (isNaN(av)) return 1;
-        if (isNaN(bv)) return -1;
-        return dir === 'asc' ? av - bv : bv - av;
-      });
-      sorted.forEach(function (r) { tb.appendChild(r); });
+  // Above 700px the column headers sort; below it the table is a card list and
+  // the headers are hidden, so a chip row in .controls drives the same function.
+  var sortState = { key: null, dir: 'asc' };
+
+  function sortBy(key, dir) {
+    rows.slice().sort(function (a, b) {
+      var av = parseFloat(a.dataset[key]);
+      var bv = parseFloat(b.dataset[key]);
+      // rows with no price ("—") always sink to the bottom, but must compare
+      // equal to each other — returning 1 for both orderings is an invalid
+      // comparator and lets the engine shuffle them arbitrarily.
+      if (isNaN(av) && isNaN(bv)) return 0;
+      if (isNaN(av)) return 1;
+      if (isNaN(bv)) return -1;
+      return dir === 'asc' ? av - bv : bv - av;
+    }).forEach(function (r) { tb.appendChild(r); });
+
+    sortState.key = key;
+    sortState.dir = dir;
+    document.querySelectorAll('th.sortable').forEach(function (th) {
+      th.setAttribute('aria-sort', th.dataset.sort === key
+        ? (dir === 'asc' ? 'ascending' : 'descending') : 'none');
     });
+    document.querySelectorAll('[data-sortkey]').forEach(function (b) {
+      var on = b.dataset.sortkey === key;
+      b.setAttribute('aria-pressed', String(on));
+      b.dataset.dir = on ? dir : '';
+    });
+  }
+
+  function toggleSort(key) {
+    sortBy(key, sortState.key === key && sortState.dir === 'asc' ? 'desc' : 'asc');
+  }
+
+  document.querySelectorAll('th.sortable').forEach(function (th) {
+    th.querySelector('.sortbtn').addEventListener('click', function () { toggleSort(th.dataset.sort); });
+  });
+  document.querySelectorAll('[data-sortkey]').forEach(function (b) {
+    b.addEventListener('click', function () { toggleSort(b.dataset.sortkey); });
   });
 
   apply();
