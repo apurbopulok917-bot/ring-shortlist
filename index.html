@@ -80,9 +80,16 @@
   .count { font-family:var(--mono); font-size:.78rem; color:var(--faint); margin:.7rem 0 0; font-variant-numeric:tabular-nums; }
 
   /* table */
-  .scroll { overflow-x:auto; max-height:80vh; margin:.9rem 0 0; border:1px solid var(--rule); background:var(--surface); }
+  .scroll { margin:.9rem 0 0; border:1px solid var(--rule); background:var(--surface); }
+  /* Wide enough for the table to fit: no scroll container, so thead's sticky
+     resolves against the page scrollport and the header cannot scroll away.
+     Narrower than that, the table needs its own scroll box and the header is
+     pinned to the box instead -- the best available in that band. */
+  @media (max-width:1199px) {
+    .scroll { overflow-x:auto; max-height:80vh; }
+  }
   table { border-collapse:collapse; width:100%; font-family:var(--sans); font-size:.8rem; line-height:1.4; }
-  th, td { text-align:left; padding:.55rem .7rem; border-top:1px solid var(--rule-soft); vertical-align:top; white-space:nowrap; }
+  th, td { text-align:left; padding:.55rem .7rem; border-top:1px solid var(--rule-soft); vertical-align:top; white-space:normal; }
   thead th { font-size:.62rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
              color:var(--graphite); background:var(--surface-2); border-top:1px solid var(--rule);
              position:sticky; top:0; z-index:2; }
@@ -98,7 +105,7 @@
   .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px;
              overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
   tbody tr:hover { background:var(--surface-2); }
-  td.num, th.num { text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums; }
+  td.num, th.num { text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap; }
   .model { display:flex; align-items:center; gap:.5rem; }
   .model svg { width:17px; height:17px; flex:0 0 auto; color:var(--platinum); }
   .model a { font-family:var(--serif); font-size:.94rem; }
@@ -120,7 +127,10 @@
   /* print: the capped scroll box clips the table in print media too, which
      silently dropped 26 of the 35 rows from PDF exports. */
   @media print {
+    /* the max-width:1199px block above also matches the print page box, so the
+       clipping scroll box has to be undone again here or PDF export drops rows */
     .scroll { max-height:none; overflow:visible; border:0; }
+    /* unstick so the header repeats per page instead of painting once */
     thead th { position:static; }
   }
   @media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} }
